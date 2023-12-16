@@ -1,39 +1,18 @@
-import 'package:flutter_examen/providers/book_list_providers.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter_examen/models/respuesta.dart';
 
-class BookListScreen extends StatefulWidget {
-  @override
-  _BookListScreenState createState() => _BookListScreenState();
-}
+class BookService {
+  final Dio _dio = Dio();
+  final String _baseUrl = 'https://stephen-king-api.onrender.com';
 
-class _BookListScreenState extends State<BookListScreen> {
-  @override
-  void initState() {
-    super.initState();
-    Future.microtask(() =>
-        Provider.of<BookListProvider>(context, listen: false).fetchBooks());
-  }
- @override
-  Widget build(BuildContext context) {
-    return Consumer<BookListProvider>(
-      builder: (context, bookListProvider, child) {
-        if (bookListProvider.books.isEmpty) {
-          return Center(child: CircularProgressIndicator());
-        }
-        return ListView.builder(
-          itemCount: bookListProvider.books.length,
-          itemBuilder: (context, index) {
-            final book = bookListProvider.books[index];
-            return ListTile(
-              title: Text(book.title),
-              subtitle: Text(book.description),
-              onTap: () {
-              },
-            );
-          },
-        );
-      },
-    );
+  Future<List<Book>> getBooks() async {
+    try {
+      final response = await _dio.get('$_baseUrl/books');
+      return (response.data as List)
+          .map((book) => Book.fromJson(book))
+          .toList();
+    } catch (e) {
+      throw Exception('Error fetching books: $e');
+    }
   }
 }

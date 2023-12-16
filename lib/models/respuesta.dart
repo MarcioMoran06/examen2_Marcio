@@ -18,4 +18,6 @@ class Book {
       villains: List<String>.from(json['villains']),
     );
   }
+
+  Null get author => null;
 }
